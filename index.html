@@ -1,668 +1,679 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>SVUM Invoice Generator</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SVUM Invoice Generator</title>
 
-<script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
 
-<style>
-    * {
-        margin: 0;
-        padding: 0;
-        box-sizing: border-box;
-    }
-
-    body {
-        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        background: #0B0B0B;
-        color: #fff;
-        padding: 20px;
-        min-height: 100vh;
-    }
-
-    .app {
-        max-width: 900px;
-        margin: auto;
-        background: linear-gradient(145deg, #1a1a1a 0%, #0B0B0B 100%);
-        border-radius: 24px;
-        box-shadow: 0 20px 60px rgba(201, 162, 77, 0.15);
-        border: 1px solid rgba(201, 162, 77, 0.2);
-        overflow: hidden;
-    }
-
-    /* HEADER */
-    .header {
-        background: linear-gradient(135deg, #C9A24D 0%, #E5C77A 100%);
-        padding: 30px;
-        text-align: center;
-        position: relative;
-        overflow: hidden;
-    }
-
-    .header::before {
-        content: '';
-        position: absolute;
-        top: -50%;
-        right: -50%;
-        width: 200%;
-        height: 200%;
-        background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
-        animation: shimmer 3s infinite;
-    }
-
-    @keyframes shimmer {
-        0%, 100% { transform: translate(-50%, -50%) rotate(0deg); }
-        50% { transform: translate(-50%, -50%) rotate(180deg); }
-    }
-
-    .header-content {
-        position: relative;
-        z-index: 1;
-    }
-
-    .logo {
-        width: 80px;
-        height: 80px;
-        background: #0B0B0B;
-        border-radius: 50%;
-        margin: 0 auto 15px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 36px;
-        font-weight: bold;
-        color: #C9A24D;
-        border: 3px solid #0B0B0B;
-        box-shadow: 0 8px 20px rgba(0,0,0,0.3);
-    }
-
-    .header h1 {
-        font-size: 28px;
-        color: #0B0B0B;
-        margin-bottom: 5px;
-        font-weight: 700;
-    }
-
-    .header span {
-        font-size: 14px;
-        color: rgba(11, 11, 11, 0.7);
-        font-weight: 500;
-    }
-
-    /* FORM SECTION */
-    .form-section {
-        padding: 35px;
-    }
-
-    .form-row {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 20px;
-        margin-bottom: 20px;
-    }
-
-    .form-group {
-        margin-bottom: 20px;
-    }
-
-    label {
-        display: block;
-        font-weight: 600;
-        font-size: 13px;
-        margin-bottom: 8px;
-        color: #E5C77A;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-    }
-
-    input, textarea {
-        width: 100%;
-        padding: 14px 16px;
-        background: rgba(255, 255, 255, 0.05);
-        border: 1px solid rgba(201, 162, 77, 0.3);
-        border-radius: 12px;
-        color: #fff;
-        font-size: 15px;
-        transition: all 0.3s;
-    }
-
-    input:focus, textarea:focus {
-        outline: none;
-        border-color: #C9A24D;
-        background: rgba(255, 255, 255, 0.08);
-        box-shadow: 0 0 0 3px rgba(201, 162, 77, 0.1);
-    }
-
-    input::placeholder, textarea::placeholder {
-        color: rgba(255, 255, 255, 0.4);
-    }
-
-    /* ITEMS SECTION */
-    .items-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 15px;
-    }
-
-    .items-header h3 {
-        color: #C9A24D;
-        font-size: 16px;
-    }
-
-    .item {
-        display: grid;
-        grid-template-columns: 2fr 1fr 1.2fr auto;
-        gap: 12px;
-        margin-bottom: 12px;
-        padding: 15px;
-        background: rgba(255, 255, 255, 0.03);
-        border-radius: 12px;
-        border: 1px solid rgba(201, 162, 77, 0.15);
-        transition: all 0.3s;
-        animation: slideIn 0.3s ease-out;
-    }
-
-    @keyframes slideIn {
-        from {
-            opacity: 0;
-            transform: translateY(-10px);
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
         }
-        to {
-            opacity: 1;
-            transform: translateY(0);
+
+        body {
+            font-family: 'Inter', 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #0a0a0a 0%, #1a1410 100%);
+            color: #fff;
+            padding: 20px;
+            min-height: 100vh;
         }
-    }
 
-    .item:hover {
-        background: rgba(255, 255, 255, 0.05);
-        border-color: rgba(201, 162, 77, 0.3);
-    }
+        .app {
+            max-width: 480px;
+            margin: auto;
+            background: rgba(17, 17, 17, 0.95);
+            border-radius: 24px;
+            overflow: hidden;
+            border: 1px solid rgba(201, 162, 77, .2);
+            box-shadow: 0 20px 60px rgba(0, 0, 0, .5);
+            animation: slideUp 0.5s ease;
+        }
 
-    .remove-btn {
-        background: rgba(255, 59, 48, 0.2);
-        color: #ff3b30;
-        border: 1px solid rgba(255, 59, 48, 0.3);
-        padding: 0;
-        width: 40px;
-        height: 40px;
-        border-radius: 8px;
-        cursor: pointer;
-        transition: all 0.3s;
-        font-size: 18px;
-        align-self: center;
-    }
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
 
-    .remove-btn:hover {
-        background: rgba(255, 59, 48, 0.3);
-        transform: scale(1.05);
-    }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
 
-    /* BUTTONS */
-    button {
-        padding: 16px 28px;
-        border-radius: 12px;
-        border: none;
-        font-weight: 600;
-        font-size: 15px;
-        cursor: pointer;
-        transition: all 0.3s;
-        display: inline-flex;
-        align-items: center;
-        gap: 8px;
-        justify-content: center;
-    }
+        /* HEADER */
+        .header {
+            background: linear-gradient(135deg, #C9A24D 0%, #E5C77A 50%, #C9A24D 100%);
+            padding: 32px 20px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
 
-    button:active {
-        transform: scale(0.97);
-    }
+        .header::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, transparent 70%);
+            animation: shimmer 3s infinite;
+        }
 
-    .add-btn {
-        width: 100%;
-        background: rgba(201, 162, 77, 0.15);
-        color: #E5C77A;
-        border: 1px solid rgba(201, 162, 77, 0.3);
-        margin-top: 10px;
-    }
+        @keyframes shimmer {
 
-    .add-btn:hover {
-        background: rgba(201, 162, 77, 0.25);
-        border-color: #C9A24D;
-    }
+            0%,
+            100% {
+                transform: translate(0, 0);
+            }
 
-    .generate-btn {
-        width: 100%;
-        background: linear-gradient(135deg, #C9A24D 0%, #E5C77A 100%);
-        color: #0B0B0B;
-        font-weight: 700;
-        margin-top: 20px;
-        box-shadow: 0 8px 20px rgba(201, 162, 77, 0.3);
-    }
+            50% {
+                transform: translate(10%, 10%);
+            }
+        }
 
-    .generate-btn:hover {
-        box-shadow: 0 12px 28px rgba(201, 162, 77, 0.4);
-        transform: translateY(-2px);
-    }
+        .logo {
+            width: 90px;
+            height: 90px;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 50%;
+            margin: 0 auto 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            position: relative;
+            z-index: 1;
+        }
 
-    /* INVOICE PREVIEW */
-    .invoice {
-        margin-top: 30px;
-        padding: 40px;
-        background: #fff;
-        color: #0B0B0B;
-        border-radius: 16px;
-        display: none;
-    }
+        .logo-text {
+            font-size: 36px;
+            font-weight: 800;
+            color: #fff;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
 
-    .invoice-header {
-        text-align: center;
-        margin-bottom: 30px;
-        padding-bottom: 20px;
-        border-bottom: 3px solid #C9A24D;
-    }
+        .header h1 {
+            color: #000;
+            margin: 0;
+            font-size: 28px;
+            font-weight: 800;
+            letter-spacing: -0.5px;
+            position: relative;
+            z-index: 1;
+        }
 
-    .invoice-logo {
-        width: 80px;
-        height: 80px;
-        background: linear-gradient(135deg, #C9A24D 0%, #E5C77A 100%);
-        border-radius: 50%;
-        margin: 0 auto 15px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 32px;
-        font-weight: bold;
-        color: #fff;
-    }
+        .header span {
+            color: rgba(0, 0, 0, 0.7);
+            font-size: 13px;
+            font-weight: 500;
+            position: relative;
+            z-index: 1;
+        }
 
-    .invoice h2 {
-        font-size: 32px;
-        color: #0B0B0B;
-        margin-bottom: 5px;
-    }
+        /* FORM */
+        .form-section {
+            padding: 24px 20px;
+        }
 
-    .invoice-info {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 20px;
-        margin-bottom: 30px;
-    }
+        .form-group {
+            margin-bottom: 20px;
+        }
 
-    .info-box {
-        padding: 15px;
-        background: #f8f8f8;
-        border-radius: 8px;
-        border-left: 4px solid #C9A24D;
-    }
+        label {
+            font-size: 13px;
+            color: #E5C77A;
+            font-weight: 600;
+            display: block;
+            margin-bottom: 8px;
+            letter-spacing: 0.3px;
+        }
 
-    .info-box label {
-        font-size: 11px;
-        color: #666;
-        margin-bottom: 5px;
-    }
+        input,
+        textarea,
+        select {
+            width: 100%;
+            padding: 14px 16px;
+            background: rgba(26, 26, 26, 0.8);
+            border: 1.5px solid rgba(201, 162, 77, .25);
+            border-radius: 12px;
+            color: #fff;
+            font-size: 15px;
+            transition: all 0.3s ease;
+        }
 
-    .info-box p {
-        font-size: 15px;
-        font-weight: 600;
-        color: #0B0B0B;
-    }
+        input:focus,
+        textarea:focus,
+        select:focus {
+            outline: none;
+            border-color: #C9A24D;
+            background: rgba(26, 26, 26, 1);
+            box-shadow: 0 0 0 3px rgba(201, 162, 77, .1);
+        }
 
-    table {
-        width: 100%;
-        border-collapse: collapse;
-        margin: 20px 0;
-    }
-
-    th {
-        background: linear-gradient(135deg, #C9A24D 0%, #E5C77A 100%);
-        color: #fff;
-        padding: 12px;
-        text-align: left;
-        font-size: 13px;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-    }
-
-    td {
-        padding: 12px;
-        border-bottom: 1px solid #e0e0e0;
-        font-size: 14px;
-    }
-
-    tr:hover {
-        background: #f9f9f9;
-    }
-
-    .total-section {
-        margin-top: 30px;
-        text-align: right;
-    }
-
-    .total-row {
-        display: flex;
-        justify-content: flex-end;
-        gap: 50px;
-        padding: 10px 0;
-        font-size: 15px;
-    }
-
-    .grand-total {
-        background: linear-gradient(135deg, #C9A24D 0%, #E5C77A 100%);
-        color: #fff;
-        padding: 15px 30px;
-        border-radius: 8px;
-        font-size: 20px;
-        font-weight: 700;
-        margin-top: 15px;
-        display: inline-block;
-    }
-
-    /* ACTION BUTTONS */
-    .actions {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 15px;
-        padding: 0 35px 35px;
-    }
-
-    .pdf-btn {
-        background: #0B0B0B;
-        color: #C9A24D;
-        border: 1px solid #C9A24D;
-    }
-
-    .pdf-btn:hover {
-        background: #C9A24D;
-        color: #0B0B0B;
-    }
-
-    .wa-btn {
-        background: #25D366;
-        color: white;
-    }
-
-    .wa-btn:hover {
-        background: #20ba56;
-    }
-
-    .clear-btn {
-        background: rgba(255, 59, 48, 0.1);
-        color: #ff3b30;
-        border: 1px solid rgba(255, 59, 48, 0.3);
-    }
-
-    .clear-btn:hover {
-        background: rgba(255, 59, 48, 0.2);
-    }
-
-    @media (max-width: 768px) {
         .form-row {
-            grid-template-columns: 1fr;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-bottom: 20px;
         }
-        
+
+        /* ITEMS */
+        .items-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin: 28px 0 16px;
+        }
+
+        .items-header h3 {
+            color: #C9A24D;
+            font-size: 18px;
+            font-weight: 700;
+        }
+
+        .item-count {
+            background: rgba(201, 162, 77, .15);
+            color: #E5C77A;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
         .item {
-            grid-template-columns: 1fr;
+            background: rgba(26, 26, 26, 0.5);
+            border: 1.5px solid rgba(201, 162, 77, .15);
+            border-radius: 14px;
+            padding: 16px;
+            margin-bottom: 12px;
+            animation: slideIn 0.3s ease;
         }
-        
-        .actions {
-            grid-template-columns: 1fr;
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(-20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .item-label {
+            font-size: 11px;
+            color: #999;
+            margin-bottom: 6px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-weight: 600;
+        }
+
+        .item-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-top: 12px;
+        }
+
+        .item input {
+            padding: 12px;
+            font-size: 14px;
+        }
+
+        .remove-btn {
+            background: linear-gradient(135deg, #ff3b30, #ff6b5a);
+            color: #fff;
+            border: none;
+            border-radius: 10px;
+            padding: 10px;
+            margin-top: 12px;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            width: 100%;
+        }
+
+        .remove-btn:active {
+            transform: scale(0.95);
+        }
+
+        button {
+            width: 100%;
+            padding: 16px;
+            border: none;
+            border-radius: 14px;
+            font-weight: 700;
+            cursor: pointer;
+            font-size: 15px;
+            transition: all 0.3s ease;
+        }
+
+        button:active {
+            transform: scale(0.98);
+        }
+
+        .add-btn {
+            background: rgba(201, 162, 77, .1);
+            color: #E5C77A;
+            border: 1.5px solid rgba(201, 162, 77, .3);
+            margin-top: 16px;
+        }
+
+        .generate-btn {
+            margin-top: 12px;
+            background: linear-gradient(135deg, #C9A24D 0%, #E5C77A 50%, #C9A24D 100%);
+            color: #000;
+            box-shadow: 0 8px 20px rgba(201, 162, 77, .3);
+        }
+
+        /* INVOICE */
+        .invoice {
+            display: none;
+            background: #fff;
+            color: #000;
+            margin: 20px;
+            border-radius: 16px;
+            padding: 24px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, .2);
+        }
+
+        .invoice-header {
+            text-align: center;
+            border-bottom: 3px solid #C9A24D;
+            padding-bottom: 20px;
+            margin-bottom: 20px;
+        }
+
+        .invoice-logo {
+            width: 70px;
+            height: 70px;
+            background: linear-gradient(135deg, #C9A24D, #E5C77A);
+            border-radius: 50%;
+            margin: 0 auto 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .invoice-logo-text {
+            font-size: 28px;
+            font-weight: 800;
+            color: #fff;
+        }
+
+        .invoice-header h2 {
+            font-size: 22px;
+            margin-bottom: 4px;
         }
 
         .invoice-info {
-            grid-template-columns: 1fr;
+            display: grid;
+            gap: 12px;
+            margin-bottom: 20px;
         }
-    }
-</style>
+
+        .info-box {
+            background: #f8f8f8;
+            padding: 14px;
+            border-radius: 10px;
+            border-left: 4px solid #C9A24D;
+        }
+
+        .info-box strong {
+            display: block;
+            font-size: 11px;
+            color: #666;
+            margin-bottom: 4px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .info-box p {
+            font-size: 14px;
+            color: #000;
+            font-weight: 600;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+
+        th {
+            background: #C9A24D;
+            color: #fff;
+            padding: 12px 8px;
+            font-size: 12px;
+            text-align: left;
+        }
+
+        td {
+            padding: 12px 8px;
+            border-bottom: 1px solid #e0e0e0;
+            font-size: 13px;
+        }
+
+        .total-section {
+            margin-top: 20px;
+            padding-top: 16px;
+            border-top: 2px solid #e0e0e0;
+        }
+
+        .total-section>div {
+            padding: 8px 0;
+            font-size: 14px;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .grand-total {
+            background: linear-gradient(135deg, #C9A24D, #E5C77A);
+            color: #000;
+            padding: 16px;
+            text-align: center;
+            border-radius: 10px;
+            margin-top: 12px;
+            font-size: 18px;
+            font-weight: 800;
+        }
+
+        /* ACTIONS */
+        .actions {
+            display: none;
+            grid-template-columns: 1fr;
+            gap: 12px;
+            padding: 20px;
+        }
+
+        .pdf-btn {
+            background: #000;
+            color: #C9A24D;
+            border: 1.5px solid #C9A24D;
+        }
+
+        .wa-btn {
+            background: linear-gradient(135deg, #25D366, #20ba5a);
+            color: #fff;
+        }
+
+        .clear-btn {
+            background: linear-gradient(135deg, #ff3b30, #ff6b5a);
+            color: #fff;
+        }
+
+        /* RESPONSIVE */
+        @media(max-width:400px) {
+            body {
+                padding: 10px;
+            }
+
+            .app {
+                border-radius: 20px;
+            }
+
+            .form-section {
+                padding: 20px 16px;
+            }
+
+            .header {
+                padding: 28px 16px;
+            }
+        }
+
+        .logo {
+            width: 100px;
+            height: 100px;
+            margin: 0 auto;
+            border-radius: 50%;
+            /* Circular */
+            overflow: hidden;
+            /* Clip the image inside the circle */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 3px solid #C9A24D;
+            /* Optional border */
+            background: #0B0B0B;
+            /* Optional background */
+        }
+
+        .logo img {
+            width: 100%;
+            /* Fill the div */
+            height: 100%;
+            /* Fill the div */
+            object-fit: cover;
+            /* Keep aspect ratio, cover full circle */
+        }
+    </style>
 </head>
 
 <body>
 
-<div class="app">
+    <div class="app">
 
-    <div class="header">
-        <div class="header-content">
-            <div class="logo"><img src="SVUM Fashion House Logo.png" alt="" width="100"></div>
+        <div class="header">
+            <div class="logo">
+                <div class="logo-text">
+                    <img src="SVUM Fashion House Logo.png" alt="">
+                </div>
+            </div>
+
             <h1>SVUM Fashion House</h1>
-            <span>SVUM Invoice Generator</span>
+            <span>Invoice Generator</span>
         </div>
+
+        <div class="form-section">
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Customer Name</label>
+                    <input id="customer" placeholder="Enter name">
+                </div>
+                <div class="form-group">
+                    <label>Date</label>
+                    <input id="invoiceDate" type="date">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>Payment Method</label>
+                <select id="paymentTerms">
+                    <option value="Cash on Delivery">Cash on Delivery</option>
+                    <option value="Bank Payment">Bank Payment</option>
+                    <option value="Cash">Cash</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>Notes (Optional)</label>
+                <textarea id="notes" rows="3" placeholder="Add notes or terms"></textarea>
+            </div>
+
+            <div class="items-header">
+                <h3>Items</h3>
+                <div class="item-count" id="itemCount">1 Item</div>
+            </div>
+
+            <div id="items"></div>
+
+            <button class="add-btn" onclick="addItem()">➕ Add Item</button>
+            <button class="generate-btn" onclick="generateInvoice()">Generate Invoice</button>
+
+        </div>
+
+        <div class="invoice" id="invoice">
+            <div class="invoice-header">
+                <div class="invoice-logo">
+                    <div class="invoice-logo-text">S</div>
+                </div>
+                <h2>SVUM Fashion House</h2>
+                <div style="font-size:12px;color:#666;">Professional Invoice</div>
+            </div>
+
+            <div class="invoice-info">
+                <div class="info-box"><strong>Customer</strong>
+                    <p id="invCustomer"></p>
+                </div>
+                <div class="info-box"><strong>Date</strong>
+                    <p id="invDate"></p>
+                </div>
+                <div class="info-box"><strong>Payment Method</strong>
+                    <p id="invTerms"></p>
+                </div>
+            </div>
+
+            <table id="invoiceTable">
+                <thead>
+                    <tr>
+                        <th>Item</th>
+                        <th style="text-align:center;">Qty</th>
+                        <th style="text-align:right;">Price</th>
+                        <th style="text-align:right;">Total</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+
+            <div class="total-section">
+                <div><span>Subtotal</span><span>Rs <span id="subtotal">0.00</span></span></div>
+                <div class="grand-total">Grand Total: Rs <span id="grandTotal">0.00</span></div>
+            </div>
+        </div>
+
+        <div class="actions" id="actionButtons">
+            <button class="pdf-btn" onclick="downloadPDF()">📄 Download PDF</button>
+            <button class="wa-btn" onclick="shareWhatsApp()">💬 Share on WhatsApp</button>
+            <button class="clear-btn" onclick="clearForm()">🔄 Clear & Start Over</button>
+        </div>
+
     </div>
 
-    <div class="form-section">
-        
-        <div class="form-row">
-            <div class="form-group">
-                <label>Customer Name</label>
-                <input id="customer" placeholder="Enter customer name">
-            </div>
-            <div class="form-group">
-                <label>Invoice Date</label>
-                <input id="invoiceDate" type="date">
-            </div>
-        </div>
+    <script>
+        function updateItemCount() {
+            const count = document.querySelectorAll('.item').length;
+            itemCount.textContent = `${count} Item${count !== 1 ? 's' : ''}`;
+        }
 
-        <div class="form-row">
-            <div class="form-group">
-                <label>Invoice Number</label>
-                <input id="invoiceNumber" placeholder="e.g., INV-001">
+        function addItem() {
+            const div = document.createElement("div");
+            div.className = "item";
+            div.innerHTML = `
+        <div class="item-label">Item Description</div>
+        <input placeholder="e.g. T-Shirt, Jeans">
+        <div class="item-row">
+            <div>
+                <div class="item-label">Quantity</div>
+                <input type="number" value="1" min="1">
             </div>
-            <div class="form-group">
-                <label>Payment Terms</label>
-                <input id="paymentTerms" placeholder="e.g., Due on Receipt">
-            </div>
-        </div>
-
-        <div class="form-group">
-            <label>Notes (Optional)</label>
-            <textarea id="notes" rows="2" placeholder="Add any additional notes or terms"></textarea>
-        </div>
-
-        <div class="items-header">
-            <h3>Invoice Items</h3>
-        </div>
-        
-        <div id="items"></div>
-
-        <button class="add-btn" onclick="addItem()">➕ Add Item</button>
-        <button class="generate-btn" onclick="generateInvoice()">✨ Generate Invoice</button>
-    </div>
-
-    <div id="invoice" class="invoice">
-        <div class="invoice-header">
-            <div class="invoice-logo"><img src="SVUM Fashion House Logo.png" alt="" width="100"></div>
-            <h2>INVOICE</h2>
-            <p style="color: #666;">SVUM Fashion House</p>
-        </div>
-
-        <div class="invoice-info">
-            <div class="info-box">
-                <label>CUSTOMER</label>
-                <p id="invCustomer">-</p>
-            </div>
-            <div class="info-box">
-                <label>INVOICE #</label>
-                <p id="invNumber">-</p>
-            </div>
-            <div class="info-box">
-                <label>DATE</label>
-                <p id="invDate">-</p>
-            </div>
-            <div class="info-box">
-                <label>PAYMENT TERMS</label>
-                <p id="invTerms">-</p>
+            <div>
+                <div class="item-label">Price (Rs)</div>
+                <input type="number" step="0.01" min="0" placeholder="0.00">
             </div>
         </div>
-
-        <table id="invoiceTable">
-            <thead>
-                <tr>
-                    <th>Item Description</th>
-                    <th style="text-align: center;">Quantity</th>
-                    <th style="text-align: right;">Unit Price</th>
-                    <th style="text-align: right;">Total</th>
-                </tr>
-            </thead>
-            <tbody></tbody>
-        </table>
-
-        <div class="total-section">
-            <div class="total-row">
-                <strong>Subtotal:</strong>
-                <span>Rs <span id="subtotal">0.00</span></span>
-            </div>
-            <div class="grand-total">
-                Grand Total: Rs <span id="grandTotal">0.00</span>
-            </div>
-        </div>
-
-        <div id="notesSection" style="margin-top: 30px; padding: 15px; background: #f8f8f8; border-radius: 8px; display: none;">
-            <strong style="color: #C9A24D;">Notes:</strong>
-            <p id="invNotes" style="margin-top: 8px; color: #666;"></p>
-        </div>
-    </div>
-
-    <div class="actions" style="display: none;" id="actionButtons">
-        <button class="pdf-btn" onclick="downloadPDF()">📄 Download PDF</button>
-        <button class="wa-btn" onclick="shareWhatsApp()">💬 Share via WhatsApp</button>
-        <button class="clear-btn" onclick="clearForm()">🗑️ Clear All</button>
-    </div>
-
-</div>
-
-<script>
-let itemCount = 0;
-
-function addItem() {
-    const div = document.createElement("div");
-    div.className = "item";
-    div.innerHTML = `
-        <input placeholder="Item description" class="item-name">
-        <input type="number" placeholder="Quantity" value="1" min="1" class="item-qty">
-        <input type="number" placeholder="Unit price" step="0.01" min="0" class="item-price">
-        <button class="remove-btn" onclick="removeItem(this)">×</button>
+        <button class="remove-btn" onclick="removeItem(this)">🗑️ Remove Item</button>
     `;
-    document.getElementById("items").appendChild(div);
-    itemCount++;
-}
+            items.appendChild(div);
+            updateItemCount();
+        }
 
-function removeItem(btn) {
-    btn.parentElement.remove();
-    itemCount--;
-}
+        function removeItem(btn) {
+            btn.closest('.item').remove();
+            updateItemCount();
+        }
 
-addItem();
-
-// Set default date to today
-document.getElementById('invoiceDate').valueAsDate = new Date();
-
-function generateInvoice() {
-    const customer = document.getElementById("customer").value || "N/A";
-    const invoiceNum = document.getElementById("invoiceNumber").value || "N/A";
-    const invoiceDate = document.getElementById("invoiceDate").value || new Date().toLocaleDateString();
-    const paymentTerms = document.getElementById("paymentTerms").value || "Due on Receipt";
-    const notes = document.getElementById("notes").value;
-
-    document.getElementById("invCustomer").innerText = customer;
-    document.getElementById("invNumber").innerText = invoiceNum;
-    document.getElementById("invDate").innerText = new Date(invoiceDate).toLocaleDateString('en-GB');
-    document.getElementById("invTerms").innerText = paymentTerms;
-
-    const tbody = document.querySelector("#invoiceTable tbody");
-    tbody.innerHTML = "";
-    let total = 0;
-
-    document.querySelectorAll(".item").forEach(item => {
-        const name = item.querySelector('.item-name').value || "Unnamed Item";
-        const qty = parseFloat(item.querySelector('.item-qty').value) || 0;
-        const price = parseFloat(item.querySelector('.item-price').value) || 0;
-        const rowTotal = qty * price;
-        total += rowTotal;
-
-        tbody.innerHTML += `
-            <tr>
-                <td>${name}</td>
-                <td style="text-align: center;">${qty}</td>
-                <td style="text-align: right;">Rs ${price.toFixed(2)}</td>
-                <td style="text-align: right;"><strong>Rs ${rowTotal.toFixed(2)}</strong></td>
-            </tr>
-        `;
-    });
-
-    document.getElementById("subtotal").innerText = total.toFixed(2);
-    document.getElementById("grandTotal").innerText = total.toFixed(2);
-    
-    // Show/hide notes section
-    if (notes.trim()) {
-        document.getElementById("notesSection").style.display = "block";
-        document.getElementById("invNotes").innerText = notes;
-    } else {
-        document.getElementById("notesSection").style.display = "none";
-    }
-
-    document.getElementById("invoice").style.display = "block";
-    document.getElementById("actionButtons").style.display = "grid";
-    
-    // Smooth scroll to invoice
-    document.getElementById("invoice").scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-}
-
-async function downloadPDF() {
-    const { jsPDF } = window.jspdf;
-    const pdf = new jsPDF('p', 'mm', 'a4');
-    const invoice = document.getElementById("invoice");
-
-    const canvas = await html2canvas(invoice, { scale: 2, backgroundColor: '#ffffff' });
-    const imgData = canvas.toDataURL("image/png");
-    
-    const imgWidth = 190;
-    const pageHeight = 277;
-    const imgHeight = (canvas.height * imgWidth) / canvas.width;
-    
-    pdf.addImage(imgData, "PNG", 10, 10, imgWidth, imgHeight);
-    
-    const invoiceNum = document.getElementById("invoiceNumber").value || "Invoice";
-    pdf.save(`SVUM-${invoiceNum}.pdf`);
-}
-
-async function shareWhatsApp() {
-    const invoice = document.getElementById("invoice");
-    const canvas = await html2canvas(invoice, { scale: 2, backgroundColor: '#ffffff' });
-    const link = canvas.toDataURL("image/png");
-
-    const a = document.createElement("a");
-    a.href = link;
-    a.download = `SVUM-Invoice-${document.getElementById("invoiceNumber").value || "001"}.png`;
-    a.click();
-
-    const customer = document.getElementById("customer").value || "Customer";
-    const total = document.getElementById("grandTotal").innerText;
-    const text = encodeURIComponent(`Hello ${customer},
-
-Here is your invoice from SVUM Soft Solution.
-
-Total Amount: Rs ${total}
-
-Thank you for your business!`);
-    
-    window.open(`https://wa.me/?text=${text}`, "_blank");
-}
-
-function clearForm() {
-    if (confirm("Are you sure you want to clear all fields?")) {
-        document.getElementById("customer").value = "";
-        document.getElementById("invoiceNumber").value = "";
-        document.getElementById("invoiceDate").valueAsDate = new Date();
-        document.getElementById("paymentTerms").value = "";
-        document.getElementById("notes").value = "";
-        document.getElementById("items").innerHTML = "";
-        document.getElementById("invoice").style.display = "none";
-        document.getElementById("actionButtons").style.display = "none";
         addItem();
-    }
-}
-</script>
+        invoiceDate.valueAsDate = new Date();
+
+        function generateInvoice() {
+            const customerName = customer.value.trim();
+            if (!customerName) {
+                alert('Please enter customer name');
+                customer.focus();
+                return;
+            }
+
+            const itemsList = document.querySelectorAll(".item");
+            if (itemsList.length === 0) {
+                alert('Please add at least one item');
+                return;
+            }
+
+            invCustomer.innerText = customerName;
+            invDate.innerText = new Date(invoiceDate.value).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
+            invTerms.innerText = paymentTerms.value;
+
+            let total = 0;
+            const tbody = document.querySelector("#invoiceTable tbody");
+            tbody.innerHTML = "";
+
+            itemsList.forEach(i => {
+                const n = i.children[1].value.trim() || "Unnamed Item";
+                const q = +i.children[2].children[0].children[1].value || 0;
+                const p = +i.children[2].children[1].children[1].value || 0;
+                const t = q * p;
+                total += t;
+                tbody.innerHTML += `<tr><td>${n}</td><td style="text-align:center;">${q}</td><td style="text-align:right;">${p.toFixed(2)}</td><td style="text-align:right;font-weight:600;">${t.toFixed(2)}</td></tr>`;
+            });
+
+            subtotal.innerText = grandTotal.innerText = total.toFixed(2);
+            invoice.style.display = "block";
+            actionButtons.style.display = "grid";
+
+            setTimeout(() => {
+                invoice.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }, 100);
+        }
+
+        async function downloadPDF() {
+            const { jsPDF } = window.jspdf;
+            const pdf = new jsPDF();
+            const canvas = await html2canvas(invoice, { scale: 2 });
+            const imgData = canvas.toDataURL('image/png');
+            const imgWidth = 190;
+            const imgHeight = (canvas.height * imgWidth) / canvas.width;
+            pdf.addImage(imgData, 'PNG', 10, 10, imgWidth, imgHeight);
+            pdf.save(`SVUM-Invoice-${Date.now()}.pdf`);
+        }
+
+        function shareWhatsApp() {
+            const items = Array.from(document.querySelectorAll("#invoiceTable tbody tr")).map(row => {
+                const cells = row.children;
+                return `• ${cells[0].textContent} (${cells[1].textContent}x) - Rs ${cells[3].textContent}`;
+            }).join('\n');
+
+            const text = encodeURIComponent(
+                `*SVUM Fashion House Invoice*\n\n` +
+                `Customer: ${invCustomer.textContent}\n` +
+                `Date: ${invDate.textContent}\n` +
+                `Payment: ${invTerms.textContent}\n\n` +
+                `*Items:*\n${items}\n\n` +
+                `*Total: Rs ${grandTotal.innerText}*`
+            );
+            window.open(`https://wa.me/?text=${text}`);
+        }
+
+        function clearForm() {
+            if (confirm('Clear all data and start over?')) {
+                location.reload();
+            }
+        }
+
+        updateItemCount();
+    </script>
 
 </body>
+
 </html>
