@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -10,243 +9,136 @@
 <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
 
 <style>
-* { margin:0; padding:0; box-sizing:border-box; }
-body { font-family:'Inter','Segoe UI',sans-serif; background:linear-gradient(135deg,#0a0a0a 0%,#1a1410 100%); color:#fff; padding:20px; min-height:100vh; }
-.app { max-width:480px; margin:auto; background:rgba(17,17,17,0.95); border-radius:24px; overflow:hidden; border:1px solid rgba(201,162,77,.2); box-shadow:0 20px 60px rgba(0,0,0,.5); animation:slideUp 0.5s ease; }
-@keyframes slideUp { from { opacity:0; transform:translateY(30px); } to { opacity:1; transform:translateY(0); } }
-.header { background:linear-gradient(135deg,#C9A24D 0%,#E5C77A 50%,#C9A24D 100%); padding:32px 20px; text-align:center; position:relative; overflow:hidden; }
-.header::before { content:''; position:absolute; top:-50%; left:-50%; width:200%; height:200%; background:radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%); animation:shimmer 3s infinite; }
-@keyframes shimmer { 0%,100%{transform:translate(0,0);} 50%{transform:translate(10%,10%);} }
-.logo { width:100px; height:100px; margin:0 auto; border-radius:50%; overflow:hidden; display:flex; align-items:center; justify-content:center; border:3px solid #C9A24D; background:#0B0B0B; }
-.logo img { width:100%; height:100%; object-fit:cover; }
-.header h1 { color:#000; margin:0; font-size:28px; font-weight:800; letter-spacing:-0.5px; position:relative; z-index:1; }
-.header span { color:rgba(0,0,0,0.7); font-size:13px; font-weight:500; position:relative; z-index:1; }
-.form-section { padding:24px 20px; }
-.form-group { margin-bottom:20px; }
-label { font-size:13px; color:#E5C77A; font-weight:600; display:block; margin-bottom:8px; letter-spacing:0.3px; }
-input, textarea, select { width:100%; padding:14px 16px; background:rgba(26,26,26,0.8); border:1.5px solid rgba(201,162,77,.25); border-radius:12px; color:#fff; font-size:15px; transition:all 0.3s ease; }
-input:focus, textarea:focus, select:focus { outline:none; border-color:#C9A24D; background:rgba(26,26,26,1); box-shadow:0 0 0 3px rgba(201,162,77,.1); }
-.form-row { display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:20px; }
-.items-header { display:flex; align-items:center; justify-content:space-between; margin:28px 0 16px; }
-.items-header h3 { color:#C9A24D; font-size:18px; font-weight:700; }
-.item-count { background: rgba(201,162,77,.15); color:#E5C77A; padding:4px 12px; border-radius:20px; font-size:12px; font-weight:600; }
-.item { background: rgba(26,26,26,0.5); border:1.5px solid rgba(201,162,77,.15); border-radius:14px; padding:16px; margin-bottom:12px; animation:slideIn 0.3s ease; }
-@keyframes slideIn { from { opacity:0; transform:translateX(-20px); } to { opacity:1; transform:translateX(0); } }
-.item-label { font-size:11px; color:#999; margin-bottom:6px; text-transform:uppercase; letter-spacing:0.5px; font-weight:600; }
-.item-row { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:12px; }
-.item input { padding:12px; font-size:14px; }
-.remove-btn { background:linear-gradient(135deg,#ff3b30,#ff6b5a); color:#fff; border:none; border-radius:10px; padding:10px; margin-top:12px; cursor:pointer; font-size:13px; font-weight:600; transition:all 0.3s ease; width:100%; }
-.remove-btn:active { transform:scale(0.95); }
-button { width:100%; padding:16px; border:none; border-radius:14px; font-weight:700; cursor:pointer; font-size:15px; transition:all 0.3s ease; }
-button:active { transform:scale(0.98); }
-.add-btn { background:rgba(201,162,77,.1); color:#E5C77A; border:1.5px solid rgba(201,162,77,.3); margin-top:16px; }
-.generate-btn { margin-top:12px; background:linear-gradient(135deg,#C9A24D 0%,#E5C77A 50%,#C9A24D 100%); color:#000; box-shadow:0 8px 20px rgba(201,162,77,.3); }
-.invoice { display:none; background:#fff; color:#000; margin:20px; border-radius:16px; padding:24px; box-shadow:0 10px 30px rgba(0,0,0,.2); }
-.invoice-header { text-align:center; border-bottom:3px solid #C9A24D; padding-bottom:20px; margin-bottom:20px; }
-.invoice-logo { width:70px; height:70px; background:linear-gradient(135deg,#C9A24D,#E5C77A); border-radius:50%; margin:0 auto 12px; display:flex; align-items:center; justify-content:center; }
-.invoice-logo-text { font-size:28px; font-weight:800; color:#fff; }
-.invoice-header h2 { font-size:22px; margin-bottom:4px; }
-.invoice-info { display:grid; gap:12px; margin-bottom:20px; }
-.info-box { background:#f8f8f8; padding:14px; border-radius:10px; border-left:4px solid #C9A24D; }
-.info-box strong { display:block; font-size:11px; color:#666; margin-bottom:4px; text-transform:uppercase; letter-spacing:0.5px; }
-.info-box p { font-size:14px; color:#000; font-weight:600; }
-table { width:100%; border-collapse:collapse; margin:20px 0; }
-th { background:#C9A24D; color:#fff; padding:12px 8px; font-size:12px; text-align:left; }
-td { padding:12px 8px; border-bottom:1px solid #e0e0e0; font-size:13px; }
-.total-section { margin-top:20px; padding-top:16px; border-top:2px solid #e0e0e0; }
-.total-section>div { padding:8px 0; font-size:14px; display:flex; justify-content:space-between; }
-.grand-total { background:linear-gradient(135deg,#C9A24D,#E5C77A); color:#000; padding:16px; text-align:center; border-radius:10px; margin-top:12px; font-size:18px; font-weight:800; }
-.actions { display:none; grid-template-columns:1fr; gap:12px; padding:20px; }
-.pdf-btn { background:#000; color:#C9A24D; border:1.5px solid #C9A24D; }
-.wa-btn { background:linear-gradient(135deg,#25D366,#20ba5a); color:#fff; }
-.clear-btn { background:linear-gradient(135deg,#ff3b30,#ff6b5a); color:#fff; }
-@media(max-width:400px){ body{padding:10px;} .app{border-radius:20px;} .form-section{padding:20px 16px;} .header{padding:28px 16px;} }
+body{font-family:Inter,Segoe UI,sans-serif;background:#0a0a0a;color:#fff;padding:15px}
+.app{max-width:480px;margin:auto;background:#111;border-radius:20px;overflow:hidden}
+.header{background:linear-gradient(135deg,#C9A24D,#E5C77A);padding:25px;text-align:center;color:#000}
+.logo{width:90px;height:90px;border-radius:50%;overflow:hidden;margin:auto;border:3px solid #fff}
+.logo img{width:100%;height:100%;object-fit:cover}
+.form{padding:20px}
+label{font-size:13px;color:#E5C77A}
+input,select{width:100%;padding:12px;margin:6px 0 15px;border-radius:10px;border:none}
+button{width:100%;padding:14px;border:none;border-radius:12px;font-weight:700;margin-top:10px}
+.add{background:#222;color:#E5C77A;border:1px solid #C9A24D}
+.gen{background:linear-gradient(135deg,#C9A24D,#E5C77A);color:#000}
+.invoice{display:none;background:#fff;color:#000;margin:15px;border-radius:15px;padding:20px}
+table{width:100%;border-collapse:collapse;margin-top:10px}
+th,td{border-bottom:1px solid #ddd;padding:8px;font-size:13px}
+.actions{display:none;padding:15px;gap:10px}
+.share{background:#25D366;color:#fff}
+.download{background:#000;color:#C9A24D;border:1px solid #C9A24D}
 </style>
 </head>
 
 <body>
+
 <div class="app">
-    <div class="header">
-        <div class="logo">
-            <img src="SVUM Fashion House Logo.png" alt="Logo">
-        </div>
-        <h1>SVUM Fashion House</h1>
-        <span>Invoice Generator</span>
-    </div>
+<div class="header">
+<div class="logo"><img src="SVUM Fashion House Logo.png"></div>
+<h2>SVUM Fashion House</h2>
+<span>Invoice Generator</span>
+</div>
 
-    <div class="form-section">
-        <div class="form-row">
-            <div class="form-group">
-                <label>Customer Name</label>
-                <input id="customer" placeholder="Enter name">
-            </div>
-            <div class="form-group">
-                <label>Date</label>
-                <input id="invoiceDate" type="date">
-            </div>
-        </div>
+<div class="form">
+<label>Customer Name</label>
+<input id="customer">
 
-        <div class="form-group">
-            <label>Payment Method</label>
-            <select id="paymentTerms">
-                <option value="Cash on Delivery">Cash on Delivery</option>
-                <option value="Bank Payment">Bank Payment</option>
-                <option value="Cash">Cash</option>
-            </select>
-        </div>
+<label>Date</label>
+<input type="date" id="date">
 
-        <div class="form-group">
-            <label>Notes (Optional)</label>
-            <textarea id="notes" rows="3" placeholder="Add notes or terms"></textarea>
-        </div>
+<label>Payment Method</label>
+<select id="payment">
+<option>Cash</option>
+<option>Bank Payment</option>
+<option>Cash on Delivery</option>
+</select>
 
-        <div class="items-header">
-            <h3>Items</h3>
-            <div class="item-count" id="itemCount">1 Item</div>
-        </div>
-        <div id="items"></div>
+<label>Item</label>
+<input id="item">
 
-        <button class="add-btn" onclick="addItem()">➕ Add Item</button>
-        <button class="generate-btn" onclick="generateInvoice()">Generate Invoice</button>
-    </div>
+<label>Qty</label>
+<input type="number" id="qty" value="1">
 
-    <div class="invoice" id="invoice">
-        <div class="invoice-header">
-            <div class="invoice-logo">
-                <div class="invoice-logo-text">S</div>
-            </div>
-            <h2>SVUM Fashion House</h2>
-            <div style="font-size:12px;color:#666;">Professional Invoice</div>
-        </div>
+<label>Price</label>
+<input type="number" id="price">
 
-        <div class="invoice-info">
-            <div class="info-box"><strong>Customer</strong><p id="invCustomer"></p></div>
-            <div class="info-box"><strong>Date</strong><p id="invDate"></p></div>
-            <div class="info-box"><strong>Payment Method</strong><p id="invTerms"></p></div>
-        </div>
+<button class="gen" onclick="generate()">Generate Invoice</button>
+</div>
 
-        <table id="invoiceTable">
-            <thead>
-                <tr>
-                    <th>Item</th>
-                    <th style="text-align:center;">Qty</th>
-                    <th style="text-align:right;">Price</th>
-                    <th style="text-align:right;">Total</th>
-                </tr>
-            </thead>
-            <tbody></tbody>
-        </table>
+<div class="invoice" id="invoice">
+<h3>Invoice</h3>
+<p><b>Customer:</b> <span id="iCustomer"></span></p>
+<p><b>Date:</b> <span id="iDate"></span></p>
+<p><b>Payment:</b> <span id="iPay"></span></p>
 
-        <div class="total-section">
-            <div><span>Subtotal</span><span>Rs <span id="subtotal">0.00</span></span></div>
-            <div class="grand-total">Grand Total: Rs <span id="grandTotal">0.00</span></div>
-        </div>
-    </div>
+<table>
+<tr><th>Item</th><th>Qty</th><th>Price</th><th>Total</th></tr>
+<tr>
+<td id="iItem"></td>
+<td id="iQty"></td>
+<td id="iPrice"></td>
+<td id="iTotal"></td>
+</tr>
+</table>
 
-    <div class="actions" id="actionButtons">
-        <button class="pdf-btn" onclick="downloadPDF()">📄 Download PDF</button>
-        <button class="wa-btn" onclick="shareWhatsAppPDF()">💬 Share PDF on WhatsApp</button>
-        <button class="clear-btn" onclick="clearForm()">🔄 Clear & Start Over</button>
-    </div>
+<h3>Total: Rs <span id="grand"></span></h3>
+</div>
+
+<div class="actions" id="actions">
+<button class="share" onclick="sharePDF()">📤 Share PDF</button>
+<button class="download" onclick="downloadPDF()">📥 Download PDF</button>
+</div>
+
 </div>
 
 <script>
-function updateItemCount(){
-    const count = document.querySelectorAll('.item').length;
-    itemCount.textContent = `${count} Item${count!==1?'s':''}`;
+date.valueAsDate=new Date();
+
+function generate(){
+if(!customer.value){alert("Enter customer name");return;}
+iCustomer.innerText=customer.value;
+iDate.innerText=date.value;
+iPay.innerText=payment.value;
+iItem.innerText=item.value;
+iQty.innerText=qty.value;
+iPrice.innerText=price.value;
+iTotal.innerText=(qty.value*price.value).toFixed(2);
+grand.innerText=iTotal.innerText;
+
+invoice.style.display="block";
+actions.style.display="grid";
 }
-function addItem(){
-    const div = document.createElement("div");
-    div.className = "item";
-    div.innerHTML = `
-        <div class="item-label">Item Description</div>
-        <input placeholder="e.g. T-Shirt, Jeans">
-        <div class="item-row">
-            <div>
-                <div class="item-label">Quantity</div>
-                <input type="number" value="1" min="1">
-            </div>
-            <div>
-                <div class="item-label">Price (Rs)</div>
-                <input type="number" step="0.01" min="0" placeholder="0.00">
-            </div>
-        </div>
-        <button class="remove-btn" onclick="removeItem(this)">🗑️ Remove Item</button>
-    `;
-    items.appendChild(div);
-    updateItemCount();
-}
-function removeItem(btn){
-    btn.closest('.item').remove();
-    updateItemCount();
-}
-addItem();
-invoiceDate.valueAsDate = new Date();
 
-function generateInvoice(){
-    const customerName = customer.value.trim();
-    if(!customerName){ alert('Please enter customer name'); customer.focus(); return; }
-    const itemsList = document.querySelectorAll(".item");
-    if(itemsList.length === 0){ alert('Please add at least one item'); return; }
-
-    invCustomer.innerText = customerName;
-    invDate.innerText = new Date(invoiceDate.value).toLocaleDateString('en-US', {year:'numeric',month:'short',day:'numeric'});
-    invTerms.innerText = paymentTerms.value;
-
-    let total = 0;
-    const tbody = document.querySelector("#invoiceTable tbody");
-    tbody.innerHTML = "";
-
-    itemsList.forEach(i=>{
-        const n = i.children[1].value.trim() || "Unnamed Item";
-        const q = +i.children[2].children[0].children[1].value || 0;
-        const p = +i.children[2].children[1].children[1].value || 0;
-        const t = q*p; total+=t;
-        tbody.innerHTML+=`<tr><td>${n}</td><td style="text-align:center;">${q}</td><td style="text-align:right;">${p.toFixed(2)}</td><td style="text-align:right;font-weight:600;">${t.toFixed(2)}</td></tr>`;
-    });
-
-    subtotal.innerText = grandTotal.innerText = total.toFixed(2);
-    invoice.style.display="block";
-    actionButtons.style.display="grid";
-
-    setTimeout(()=>{ invoice.scrollIntoView({behavior:'smooth',block:'start'}); },100);
+async function createPDF(){
+const {jsPDF}=window.jspdf;
+const pdf=new jsPDF();
+const canvas=await html2canvas(invoice,{scale:2});
+const img=canvas.toDataURL("image/png");
+pdf.addImage(img,"PNG",10,10,190,(canvas.height*190)/canvas.width);
+return pdf;
 }
 
 async function downloadPDF(){
-    const { jsPDF } = window.jspdf;
-    const pdf = new jsPDF();
-    const canvas = await html2canvas(invoice,{scale:2});
-    const imgData = canvas.toDataURL('image/png');
-    const imgWidth = 190;
-    const imgHeight = (canvas.height*imgWidth)/canvas.width;
-    pdf.addImage(imgData,'PNG',10,10,imgWidth,imgHeight);
-    pdf.save(`SVUM-Invoice-${Date.now()}.pdf`);
+const pdf=await createPDF();
+pdf.save(`SVUM-Invoice-${Date.now()}.pdf`);
 }
 
-async function shareWhatsAppPDF(){
-    const { jsPDF } = window.jspdf;
-    const pdf = new jsPDF();
-    const canvas = await html2canvas(invoice,{scale:2});
-    const imgData = canvas.toDataURL('image/png');
-    const imgWidth = 190;
-    const imgHeight = (canvas.height*imgWidth)/canvas.width;
-    pdf.addImage(imgData,'PNG',10,10,imgWidth,imgHeight);
+async function sharePDF(){
+const pdf=await createPDF();
+const blob=pdf.output("blob");
+const file=new File([blob],"SVUM-Invoice.pdf",{type:"application/pdf"});
 
-    // Save PDF to blob and download
-    const pdfBlob = pdf.output('blob');
-    const url = URL.createObjectURL(pdfBlob);
-    const a = document.createElement('a');
-    a.href=url;
-    a.download=`SVUM-Invoice-${Date.now()}.pdf`;
-    a.click();
-    URL.revokeObjectURL(url);
-
-    alert("PDF downloaded! Open WhatsApp and attach the downloaded PDF to share.");
+if(navigator.canShare && navigator.canShare({files:[file]})){
+await navigator.share({
+title:"SVUM Invoice",
+text:"Invoice from SVUM Fashion House",
+files:[file]
+});
+}else{
+downloadPDF();
+alert("Sharing not supported. PDF downloaded instead.");
 }
-
-function clearForm(){ if(confirm('Clear all data and start over?')){ location.reload(); } }
-
-updateItemCount();
+}
 </script>
+
 </body>
 </html>
