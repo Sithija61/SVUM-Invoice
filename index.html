@@ -314,6 +314,26 @@ gap:8px
 padding:20px;
 margin:20px
 }
+
+.logo {
+    width: 100px;
+    height: 100px;
+    margin: 0 auto;
+    border-radius: 50%; /* Circular */
+    overflow: hidden;   /* Clip the image inside the circle */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 3px solid #C9A24D; /* Optional border */
+    background: #0B0B0B; /* Optional background */
+}
+
+.logo img {
+    width: 100%;      /* Fill the div */
+    height: 100%;     /* Fill the div */
+    object-fit: cover; /* Keep aspect ratio, cover full circle */
+}
+
 }
 </style>
 </head>
@@ -321,7 +341,12 @@ margin:20px
 <div class="container">
 <div class="card">
 <div class="header">
-<div class="logo">S</div>
+<div class="logo">
+    <div class="logo-text">
+        <img src="SVUM Fashion House Logo.png" alt="">
+    </div>
+</div>
+
 <h1>SVUM Fashion House</h1>
 <p>Premium Invoice Generator</p>
 </div>
